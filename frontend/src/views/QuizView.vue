@@ -77,17 +77,14 @@
         </div>
       </div>
       
-      <!-- Mensagem de aviso para responder tudo -->
       <p v-if="!allQuestionsAnswered && !showResults" class="warning-message">
         Por favor, responda todas as questões para verificar o resultado.
       </p>
 
-      <!-- Botão para verificar as respostas AGORA COM VALIDAÇÃO -->
       <button @click="checkAnswers" v-if="!showResults" class="check-button" :disabled="!allQuestionsAnswered">
         Verificar Respostas
       </button>
 
-      <!-- Área de Resultados -->
       <div v-if="showResults" class="results-container">
         <h3>Resultados:</h3>
         <p class="score">Você acertou {{ score }} de {{ quiz.questions.length }}!</p>
@@ -103,12 +100,10 @@
         <button @click="resetQuiz" class="reset-button">Gerar Novo Quiz</button>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-// Adicionado 'computed' para criar a lógica de validação
 import { ref, computed } from 'vue';
 import axios from 'axios';
 
@@ -122,15 +117,9 @@ const score = ref(0);
 const questionCount = ref(3);
 const difficulty = ref('médio');
 
-// ▼▼▼ NOVA PROPRIEDADE COMPUTADA ▼▼▼
-// Esta função reativa verifica se o número de respostas é igual ao número de questões.
 const allQuestionsAnswered = computed(() => {
-  if (!quiz.value) {
-    return false;
-  }
-  const answeredCount = Object.keys(userAnswers.value).length;
-  const totalQuestions = quiz.value.questions.length;
-  return answeredCount === totalQuestions;
+  if (!quiz.value) return false;
+  return Object.keys(userAnswers.value).length === quiz.value.questions.length;
 });
 
 async function generateQuiz() {
@@ -152,24 +141,15 @@ async function generateQuiz() {
     quiz.value = response.data.quiz;
   } catch (err) {
     console.error("Erro ao gerar o quiz:", err);
-    error.value = 'Não foi possível gerar o quiz. Tente um tópico diferente ou verifique o servidor.';
+    error.value = 'Não foi possível gerar o quiz. Tente novamente ou verifique o servidor.';
   } finally {
     isLoading.value = false;
   }
 }
 
 function checkAnswers() {
-  // A validação agora acontece antes mesmo do clique, mas mantemos a guarda aqui
   if (!allQuestionsAnswered.value) return;
-
-  score.value = 0;
-  if (!quiz.value) return;
-
-  for (let i = 0; i < quiz.value.questions.length; i++) {
-    if (userAnswers.value[i] === quiz.value.questions[i].answer) {
-      score.value++;
-    }
-  }
+  score.value = quiz.value.questions.filter((q, i) => userAnswers.value[i] === q.answer).length;
   showResults.value = true;
 }
 
@@ -191,15 +171,14 @@ function resetQuiz() {
 </script>
 
 <style scoped>
-/* (Estilos permanecem os mesmos, omitidos para brevidade, mas devem ser mantidos no seu arquivo) */
 .quiz-view {
-  max-width: 800px;
+  max-width: 900px;
   margin: 2rem auto;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  background-color: #ffffff;
-  color: #333;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  background: linear-gradient(135deg, #22306f, #000000 30%, #1b2a6b 100%);
+  color: #f0f0f0;
 }
 
 .quiz-header {
@@ -207,17 +186,13 @@ function resetQuiz() {
   margin-bottom: 2rem;
 }
 
-.input-area {
-  display: flex;
-  margin-bottom: 1.5rem;
-}
-
 .topic-input {
   flex-grow: 1;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 20px;
   font-size: 1rem;
+  outline: none;
 }
 
 .options-area {
@@ -226,7 +201,7 @@ function resetQuiz() {
   align-items: center;
   margin-bottom: 1.5rem;
   gap: 2rem;
-  flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
+  flex-wrap: wrap;
 }
 
 .option-group {
@@ -236,71 +211,68 @@ function resetQuiz() {
 }
 
 #question-count {
-  width: 60px;
-  padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.difficulty-selectors {
-  display: flex;
+  width: 70px;
+  padding: 0.6rem;
+  border-radius: 12px;
+  border: none;
+  text-align: center;
 }
 
 .difficulty-selectors button {
-  padding: 0.5rem 1rem;
-  border: 1px solid #007bff;
-  background-color: white;
-  color: #007bff;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background-color: #4a6fb3;
+  color: white;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: 0.3s;
 }
 
 .difficulty-selectors button.active {
   background-color: #007bff;
-  color: white;
+  font-weight: bold;
 }
 
-.difficulty-selectors button:first-child {
-  border-radius: 4px 0 0 4px;
-}
-.difficulty-selectors button:last-child {
-  border-radius: 0 4px 4px 0;
-}
-.difficulty-selectors button:not(:last-child) {
-  border-right: none;
-}
-
-.generate-button {
+.generate-button, .check-button, .reset-button {
   display: block;
   width: 100%;
   padding: 1rem;
   font-size: 1.1rem;
   margin-top: 1rem;
-  background-color: #28a745;
+  background: #28a745;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 20px;
   cursor: pointer;
   font-weight: bold;
+  transition: background 0.3s;
 }
 
-.generate-button:disabled {
+.generate-button:hover,
+.check-button:hover,
+.reset-button:hover {
+  background: #218838;
+}
+
+.generate-button:disabled,
+.check-button:disabled {
   background-color: #a0a0a0;
+  cursor: not-allowed;
 }
 
 .quiz-container {
   margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(30,40,70,0.6);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
 }
 
 .question-block {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 4px;
-}
-
-.question-text {
-  margin-bottom: 1rem;
+  border-radius: 12px;
+  background: rgba(40,50,90,0.7);
 }
 
 .options-list .option {
@@ -311,43 +283,21 @@ function resetQuiz() {
 
 .options-list .option label {
   margin-left: 0.5rem;
-}
-
-.check-button, .reset-button {
-  display: block;
-  width: 100%;
-  padding: 1rem;
-  font-size: 1.1rem;
-  margin-top: 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Novo estilo para o botão desabilitado */
-.check-button:disabled {
-  background-color: #a0a0a0;
-  cursor: not-allowed;
+  color: #e0e0e0;
 }
 
 .results-container {
   margin-top: 2rem;
   padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
+  border-radius: 12px;
+  background: rgba(20,30,60,0.7);
 }
 
 .score {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: bold;
   text-align: center;
   margin-bottom: 1.5rem;
-}
-
-.result-block {
-  margin-bottom: 1rem;
 }
 
 .correct-answer {
@@ -358,25 +308,17 @@ function resetQuiz() {
   color: #dc3545;
 }
 
-.explanation {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin-top: 0.5rem;
-  padding-left: 1rem;
-  border-left: 3px solid #ccc;
-}
-
 .error-message {
-  color: #dc3545;
+  color: #ff4d4d;
   text-align: center;
+  font-weight: bold;
+  margin-top: 1rem;
 }
 
-/* Novo estilo para a mensagem de aviso */
 .warning-message {
   text-align: center;
-  color: #6c757d;
+  color: #c0c0c0;
   font-style: italic;
   margin-top: 1rem;
 }
 </style>
-

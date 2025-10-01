@@ -1,7 +1,7 @@
 <template>
   <div class="tutor-view">
     <header class="tutor-header">
-      <h1>Gênio, o Tutor Virtual</h1>
+      <h1>🤖 Gênio, o Tutor Virtual</h1>
       <p>Faça qualquer pergunta sobre suas matérias escolares!</p>
     </header>
 
@@ -31,7 +31,6 @@
     </div>
     
     <p v-if="error" class="error-message">{{ error }}</p>
-
   </div>
 </template>
 
@@ -39,34 +38,22 @@
 import { ref, nextTick } from 'vue';
 import axios from 'axios';
 
-// --- Estado Reativo do Componente ---
-
-// Array para armazenar o histórico da conversa
 const messages = ref([]);
-// String para guardar a pergunta que está sendo digitada no input
 const currentQuestion = ref('');
-// Booleano para controlar a exibição do loading e desabilitar o input/botão
 const isLoading = ref(false);
-// String para armazenar mensagens de erro
 const error = ref(null);
-// Referência para a div da janela de chat, para o scroll automático
 const chatWindow = ref(null);
-
-// --- Funções ---
 
 async function sendMessage() {
   const userPrompt = currentQuestion.value.trim();
   if (!userPrompt) return;
 
-  // Adiciona a pergunta do usuário ao histórico local para exibição imediata
   messages.value.push({
     id: Date.now(),
     role: 'user',
     content: userPrompt,
   });
 
-  // Prepara para a chamada da API
-  // Cria uma cópia do histórico SEM a última pergunta do usuário, pois ela já vai no 'prompt'
   const historyToSend = messages.value.slice(0, -1).map(msg => ({
     role: msg.role,
     content: msg.content
@@ -78,14 +65,12 @@ async function sendMessage() {
   scrollToBottom();
 
   try {
-    // Faz a requisição POST, agora ENVIANDO O HISTÓRICO junto com a nova pergunta
     const response = await axios.post('http://localhost:3000/gemini-tutor', {
       prompt: userPrompt,
       subject: 'Conhecimentos Gerais',
       history: historyToSend 
     });
 
-    // Adiciona a resposta da IA ao histórico do chat
     messages.value.push({
       id: Date.now() + 1,
       role: 'ai',
@@ -94,7 +79,7 @@ async function sendMessage() {
 
   } catch (err) {
     console.error("Erro ao contatar o backend:", err);
-    error.value = "Desculpe, não consegui me conectar ao meu cérebro. Verifique se o servidor está rodando e tente novamente.";
+    error.value = "Desculpe, não consegui me conectar. Verifique o servidor e tente novamente.";
     messages.value.push({
       id: Date.now() + 1,
       role: 'ai',
@@ -116,24 +101,32 @@ async function scrollToBottom() {
 </script>
 
 <style scoped>
-/* Estilo geral do container */
 .tutor-view {
-  max-width: 800px;
+  max-width: 900px;
   margin: 2rem auto;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   height: 85vh;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  background-color: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #22306f, #000000 30%, #ffffff 60%, #1b2a6b 100%);
+  color: #fff;
 }
 
 .tutor-header {
   text-align: center;
-  border-bottom: 1px solid #eee;
   padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.tutor-header h1 {
+  font-size: 1.8rem;
+  color: #61dafb;
+}
+
+.tutor-header p {
+  color: #cbd5e1;
 }
 
 /* Janela do Chat */
@@ -153,41 +146,45 @@ async function scrollToBottom() {
 
 .message {
   max-width: 70%;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  border-radius: 16px;
   line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease;
 }
 
 .message-role {
   font-size: 0.8rem;
   margin-bottom: 0.25rem;
-  color: #555;
   font-weight: bold;
+  display: block;
 }
 
-/* Estilo da mensagem do Usuário */
+/* Mensagem do Usuário */
 .user-message {
   background-color: #007bff;
-  color: white;
+  color: #fff;
   margin-left: auto;
+  border-bottom-right-radius: 4px;
 }
 
 .user-message .message-role {
   color: #e0e0e0;
 }
 
-/* Estilo da mensagem da IA */
+/* Mensagem da IA */
 .ai-message {
-  background-color: #e9ecef;
-  color: #333;
+  background-color: rgba(255,255,255,0.9);
+  color: #222;
   margin-right: auto;
+  border-bottom-left-radius: 4px;
 }
 
 /* Indicador de Carregamento */
 .loading-indicator {
   text-align: center;
   padding: 0.5rem;
-  color: #888;
+  color: #cbd5e1;
   font-style: italic;
 }
 
@@ -195,44 +192,54 @@ async function scrollToBottom() {
 .input-area {
   display: flex;
   padding: 1rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid rgba(255,255,255,0.2);
   gap: 0.5rem;
 }
 
 .input-area input {
   flex-grow: 1;
   padding: 0.75rem;
-  border: 1px solid #ccc;
+  border: none;
   border-radius: 20px;
   font-size: 1rem;
+  outline: none;
+  background: rgba(255,255,255,0.9);
+  color: #222;
 }
 
 .input-area button {
   padding: 0.75rem 1.5rem;
   border: none;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #007bff, #334d99);
   color: white;
   border-radius: 20px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .input-area button:hover {
-  background-color: #0056b3;
+  background: linear-gradient(135deg, #0056b3, #22306f);
+  transform: scale(1.05);
 }
 
 .input-area button:disabled,
 .input-area input:disabled {
-  background-color: #a0a0a0;
+  background-color: #555;
   cursor: not-allowed;
 }
 
 /* Mensagem de Erro */
 .error-message {
   text-align: center;
-  color: #d93025;
+  color: #ff6b6b;
   padding: 0.5rem;
+}
+
+/* Animação suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

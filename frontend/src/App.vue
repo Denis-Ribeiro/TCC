@@ -30,12 +30,11 @@
 </template>
 
 <style>
-/* Estilos Globais para a Aplicação */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f4f7f6;
-  color: #333;
+  background: #22306f;
+  color: #f0f0f0;
 }
 
 #app-layout {
@@ -45,11 +44,12 @@ body {
 .sidebar {
   width: 260px;
   min-height: 100vh;
-  background-color: #001e3c; /* Tom de azul escuro */
+  background: linear-gradient(180deg, #001e3c, #334d99);
   color: #fff;
   padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
+  box-shadow: 4px 0 12px rgba(0,0,0,0.3);
 }
 
 .logo {
@@ -57,7 +57,7 @@ body {
   font-weight: bold;
   text-align: center;
   margin-bottom: 2.5rem;
-  color: #61dafb; /* Azul claro para destaque */
+  color: #61dafb;
   line-height: 1.2;
 }
 
@@ -73,20 +73,22 @@ body {
   gap: 1rem;
   padding: 0.9rem 1rem;
   text-decoration: none;
-  color: #cbd5e1; /* Cinza claro para texto */
+  color: #cbd5e1;
   font-weight: 500;
-  border-radius: 6px;
-  transition: background-color 0.2s, color 0.2s;
+  border-radius: 8px;
+  transition: background 0.3s, color 0.3s, transform 0.2s;
 }
 
 .main-nav a:hover {
-  background-color: #003366; /* Azul um pouco mais claro no hover */
+  background-color: #4a6fb3;
   color: #fff;
+  transform: translateX(3px);
 }
 
 .main-nav a.router-link-exact-active {
-  background-color: #007bff; /* Azul vibrante para o link ativo */
+  background-color: #007bff;
   color: #fff;
+  font-weight: bold;
 }
 
 .main-nav a svg {
@@ -100,6 +102,8 @@ body {
   overflow-y: auto;
   height: 100vh;
   box-sizing: border-box;
+  /* Gradiente com azul → preto → branco → azul */
+  background: linear-gradient(135deg, #22306f, #000000 30%, #ffffff 60%, #1b2a6b 100%);
+  color: #ffffff;
 }
 </style>
-

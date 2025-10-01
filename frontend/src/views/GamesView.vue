@@ -46,15 +46,20 @@ const selectedGame = ref(null); // 'hangman', 'guesswho', ou null
   max-width: 900px;
   margin: 2rem auto;
   padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  background: linear-gradient(135deg, #22306f, #000000 30%, #1b2a6b 100%);
+  color: #f0f0f0;
   text-align: center;
 }
+
 .games-header {
   margin-bottom: 2rem;
 }
 
 .game-selection-menu p {
   font-size: 1.2rem;
-  color: #666;
+  color: #c0c0c0;
   margin-bottom: 2rem;
 }
 
@@ -68,17 +73,18 @@ const selectedGame = ref(null); // 'hangman', 'guesswho', ou null
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  border-radius: 8px;
-  border: 2px solid #007bff;
-  background-color: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #4a6fb3;
+  background: rgba(30, 40, 70, 0.6);
   cursor: pointer;
   text-align: left;
   transition: all 0.2s ease-in-out;
+  color: #f0f0f0;
 }
 
 .game-option-button:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
   background-color: #007bff;
   color: white;
 }
@@ -95,6 +101,10 @@ const selectedGame = ref(null); // 'hangman', 'guesswho', ou null
 
 .selected-game-container {
   margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(20, 30, 60, 0.7);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
 }
 
 .back-to-menu-button {
@@ -104,9 +114,13 @@ const selectedGame = ref(null); // 'hangman', 'guesswho', ou null
   background-color: #6c757d;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: bold;
+  transition: background 0.3s;
+}
+
+.back-to-menu-button:hover {
+  background-color: #5a6268;
 }
 </style>
-

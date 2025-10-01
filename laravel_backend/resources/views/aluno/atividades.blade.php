@@ -5,24 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minhas Atividades</title>
     <style>
-        body { font-family: sans-serif; margin: 2rem; background-color: #f4f7f6; color: #333; }
-        .container { max-width: 900px; margin: auto; }
-        .atividade-card { border: 1px solid #dee2e6; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .atividade-header { display: flex; justify-content: space-between; align-items: center; }
-        .status { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
-        .status-pendente { background-color: #ffc107; color: #333; }
-        .status-concluido { background-color: #28a745; color: white; }
-        .question-block { margin-top: 1.5rem; }
-        .options-list .option { margin-bottom: 0.5rem; }
-        .btn-submit { background-color: #007bff; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; margin-top: 1rem; }
-        .success-message { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
-        h1, h2, h3 { color: #0056b3; }
-        .back-link { display: inline-block; margin-bottom: 2rem; color: #007bff; text-decoration: none; }
-        .results-section { margin-top: 1.5rem; }
-        .result-question { border-top: 1px dashed #ccc; padding-top: 1rem; margin-top: 1rem; }
-        .correct-answer { color: #28a745; font-weight: bold; }
-        .incorrect-answer { color: #dc3545; font-weight: bold; }
-        .explanation { font-style: italic; color: #6c757d; margin-top: 0.5rem; padding-left: 1rem; border-left: 3px solid #eee; }
+        /* Corpo da página */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            background: linear-gradient(135deg, #22306f, #000000 30%, #1b2a6b 100%);
+            color: #f0f0f0; 
+        }
+
+        /* Container principal */
+        .container { 
+            max-width: 900px; 
+            margin: 2rem auto; 
+            padding: 2rem; 
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            background: rgba(20,30,60,0.7);
+        }
+
+        h1 { 
+            color: #ffeb3b; 
+            margin-bottom: 1rem;
+        }
+
+        /* Link de voltar */
+        .back-link { 
+            display: inline-block; 
+            margin-bottom: 2rem; 
+            color: #ffeb3b; 
+            text-decoration: none; 
+            font-weight: bold;
+        }
+        .back-link:hover { 
+            text-decoration: underline; 
+        }
+
+        /* Cartão de atividade */
+        .atividade-card { 
+            background: rgba(30,40,70,0.6);
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+        }
+        .atividade-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+            background: rgba(0,123,255,0.6);
+        }
+
+        .atividade-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+
+        .status { 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 12px; 
+            font-size: 0.8rem; 
+            font-weight: bold; 
+        }
+        .status-pendente { 
+            background-color: #ffc107; 
+            color: #333; 
+        }
+        .status-concluido { 
+            background-color: #28a745; 
+            color: white; 
+        }
+
+        .question-block { 
+            margin-top: 1.5rem; 
+        }
+
+        .options-list .option { 
+            margin-bottom: 0.5rem; 
+        }
+        .options-list .option label {
+            color: #ffeb3b; 
+            cursor: pointer;
+        }
+
+        /* Botão enviar */
+        .btn-submit { 
+            background-color: #28a745; 
+            color: white; 
+            padding: 0.75rem 1.5rem; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            margin-top: 1rem; 
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        /* Mensagem de sucesso */
+        .success-message { 
+            color: #0f5132; 
+            background-color: #d1e7dd; 
+            border: 1px solid #badbcc;
+            padding: 1rem; 
+            margin-bottom: 1rem; 
+            border-radius: 12px; 
+        }
+
+        /* Resultados */
+        .results-section { 
+            margin-top: 1.5rem; 
+        }
+
+        .result-question { 
+            border-top: 1px dashed #888; 
+            padding-top: 1rem; 
+            margin-top: 1rem; 
+        }
+
+        .correct-answer { 
+            color: #28a745; 
+            font-weight: bold; 
+        }
+
+        .incorrect-answer { 
+            color: #dc3545; 
+            font-weight: bold; 
+        }
+
+        .explanation { 
+            font-style: italic; 
+            color: #c0c0c0; 
+            margin-top: 0.5rem; 
+            padding-left: 1rem; 
+            border-left: 3px solid #888; 
+        }
+
+        input[type="radio"] + label {
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -50,7 +174,6 @@
                         @if(isset($atividade->quiz->questions))
                             @foreach($atividade->quiz->questions as $index => $question)
                                 <div class="question-block">
-                                    {{-- ▼▼▼ CORRIGIDO PARA SER COMPATÍVEL COM VERSÕES ANTERIORES ▼▼▼ --}}
                                     <p><strong>{{ $index + 1 }}. {{ $question->text ?? $question->question }}</strong></p>
                                     <div class="options-list">
                                         @foreach($question->options as $key => $option)
@@ -73,11 +196,9 @@
                         @if(isset($atividade->quiz->questions))
                             @foreach($atividade->quiz->questions as $index => $question)
                                 <div class="result-question">
-                                    {{-- ▼▼▼ CORRIGIDO PARA SER COMPATÍVEL COM VERSÕES ANTERIORES ▼▼▼ --}}
                                     <p><strong>{{ $index + 1 }}. {{ $question->text ?? $question->question }}</strong></p>
                                     @php
                                         $userAnswerKey = $atividade->pivot->answers[$index] ?? null;
-                                        // Também torna a chave de resposta correta compatível com versões anteriores
                                         $correctAnswerKey = $question->correct ?? $question->answer; 
                                         $isCorrect = ($userAnswerKey == $correctAnswerKey);
                                     @endphp
@@ -101,4 +222,3 @@
     </div>
 </body>
 </html>
-
