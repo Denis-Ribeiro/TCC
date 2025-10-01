@@ -20,7 +20,7 @@ if (!process.env.API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-// Usando o nome de modelo mais estável. Se isto falhar, o problema está na configuração da sua chave de API no Google Cloud.
+// Nome do modelo revertido conforme solicitado.
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 // -----------------------------------------------------------------------------
@@ -102,8 +102,52 @@ app.post('/gemini-tutor', async (req, res) => {
  * ROTA 2: GERADOR DE QUIZZES
  */
 app.post('/gemini-quiz', async (req, res) => {
-    // ... (A sua lógica de retry para o quiz é complexa e foi mantida como estava)
-    // ...
+    const { topic, questionCount, difficulty } = req.body;
+
+    if (!topic || !questionCount || !difficulty) {
+        return res.status(400).send({ error: 'Todos os parâmetros são obrigatórios.' });
+    }
+
+    const MAX_ATTEMPTS = 5;
+    let allQuestions = [];
+    let attempts = 0;
+
+    while (allQuestions.length < questionCount && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        const questionsNeeded = questionCount - allQuestions.length;
+        console.log(`Tentativa ${attempts}: Faltam ${questionsNeeded} questões.`);
+
+        try {
+            const masterPrompt = `
+                Sua única função é retornar um objeto JSON. Não adicione nenhum outro texto, markdown ou explicação.
+                Aja como um professor. Crie um quiz sobre o tópico "${topic}".
+                Requisitos:
+                - Gere EXATAMENTE ${questionsNeeded} nova(s) pergunta(s).
+                - A dificuldade deve ser: ${difficulty}.
+                - Cada pergunta deve ter 4 alternativas (a, b, c, d).
+                - A resposta (answer) deve ser a letra da alternativa correta.
+                Sua resposta DEVE ser APENAS um objeto JSON com a estrutura:
+                { "topic": "${topic}", "questions": [{"question": "...", "options": { "a": "...", "b": "...", "c": "...", "d": "..." }, "answer": "c", "explanation": "..."}] }
+            `;
+
+            const textResponse = await generateGeminiContent(masterPrompt, `Quiz Tentativa ${attempts}`);
+            const partialQuiz = parseJsonResponse(textResponse);
+
+            if (partialQuiz.questions && partialQuiz.questions.length > 0) {
+                allQuestions.push(...partialQuiz.questions);
+            }
+        } catch (error) {
+            console.error(`Erro na tentativa ${attempts}: ${error.message}`);
+        }
+    }
+
+    if (allQuestions.length >= questionCount) {
+        const finalQuestions = allQuestions.slice(0, questionCount);
+        const finalQuiz = { topic: topic, questions: finalQuestions };
+        return res.send({ quiz: finalQuiz });
+    } else {
+        return res.status(500).send({ error: `A IA não conseguiu gerar o quiz completo. Por favor, tente novamente.` });
+    }
 });
 
 
@@ -143,7 +187,9 @@ app.post('/gemini-guesswho', async (req, res) => {
     try {
         const textResponse = await generateGeminiContent(masterPrompt, 'Quem Sou Eu?');
         const jsonResponse = parseJsonResponse(textResponse);
-        res.send({ game: jsonResponse });
+        // ▼▼▼ A CORREÇÃO ESTÁ AQUI ▼▼▼
+        // Enviamos a resposta diretamente, sem o "pacote" extra.
+        res.send(jsonResponse);
     } catch (error) {
         res.status(500).send({ error: error.message });
     }
