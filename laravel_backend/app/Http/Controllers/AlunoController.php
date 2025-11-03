@@ -21,12 +21,20 @@ class AlunoController extends Controller
     public function atividades()
     {
         $aluno = Auth::user();
-        $atividades = $aluno->atividades()->with('professor')->orderBy('created_at', 'desc')->get();
+        $atividades = $aluno->atividades()
+                            ->with('professor')
+                            ->orderBy('created_at', 'desc')
+                            ->get();
 
-        // Prepara os dados para a view
+        // ▼▼▼ CORREÇÃO IMPORTANTE AQUI ▼▼▼
+        // Prepara TODOS os dados para a view usar, decodificando tanto
+        // as perguntas do quiz quanto as respostas salvas do aluno.
         foreach ($atividades as $atividade) {
             $atividade->quiz = json_decode($atividade->descricao);
-            $atividade->pivot->answers = json_decode($atividade->pivot->answers, true); 
+            
+            // Decodifica as respostas do aluno de JSON para um array PHP.
+            // Se não houver respostas, usa um array vazio para evitar erros.
+            $atividade->pivot->answers = json_decode($atividade->pivot->answers, true) ?? [];
         }
 
         return view('aluno.atividades', [
@@ -52,8 +60,7 @@ class AlunoController extends Controller
 
         if ($totalQuestions > 0) {
             foreach ($quizData->questions as $index => $question) {
-                // ▼▼▼ A CORREÇÃO ESTÁ AQUI ▼▼▼
-                // A chave da resposta correta no nosso JSON é 'correct', não 'answer'.
+                // Compara a resposta enviada com a resposta correta no JSON
                 if (isset($request->answers[$index]) && $request->answers[$index] === $question->correct) {
                     $score++;
                 }
@@ -63,7 +70,8 @@ class AlunoController extends Controller
             $nota = 0;
         }
 
-        // Atualiza a tabela pivô com a nota, o estado e as respostas em formato JSON
+        // ▼▼▼ ATUALIZAÇÃO DO STATUS E NOTA ▼▼▼
+        // Ao finalizar, o status é definido como 'Concluído'
         $aluno->atividades()->updateExistingPivot($idAtividade, [
             'status' => 'Concluído',
             'nota' => $nota,
@@ -73,4 +81,3 @@ class AlunoController extends Controller
         return redirect()->route('aluno.atividades')->with('success', 'Quiz finalizado com sucesso!');
     }
 }
-

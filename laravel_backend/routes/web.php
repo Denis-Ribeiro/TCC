@@ -20,6 +20,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // Grupo de rotas para PROFESSORES
 Route::middleware(['auth:professor'])->prefix('professor')->name('professor.')->group(function () {
     Route::get('/dashboard', [ProfessorController::class, 'dashboard'])->name('dashboard');
+    // A rota em falta para a página de criação foi adicionada aqui
+    Route::get('/atividades/create', [ProfessorController::class, 'create'])->name('atividades.create');
     Route::post('/atividades', [ProfessorController::class, 'storeAtividade'])->name('atividades.store');
     Route::delete('/atividades/{atividade}', [ProfessorController::class, 'destroyAtividade'])->name('atividades.destroy');
 });
@@ -27,7 +29,6 @@ Route::middleware(['auth:professor'])->prefix('professor')->name('professor.')->
 // Grupo de rotas para ALUNOS
 Route::middleware(['auth:aluno'])->prefix('aluno')->name('aluno.')->group(function () {
     Route::get('/dashboard', [AlunoController::class, 'dashboard'])->name('dashboard');
-    // Rota para a página de atividades
     Route::get('/atividades', [AlunoController::class, 'atividades'])->name('atividades');
     Route::post('/quiz/{idAtividade}/submit', [AlunoController::class, 'submitQuiz'])->name('quiz.submit');
 });

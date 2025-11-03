@@ -10,31 +10,41 @@ use App\Models\Aluno;
 class ProfessorController extends Controller
 {
     /**
-     * Exibe o painel do professor com as atividades e o progresso dos alunos.
+     * Exibe o painel de relatórios do professor.
      */
     public function dashboard()
     {
         $professor = Auth::user();
-        
-        // Carrega as atividades E os alunos associados a cada atividade
+
+        // ✅ Inclui status, nota e answers da tabela pivot
         $atividades = Atividade::where('id_professor', $professor->id_professor)
-                                ->with('alunos') 
-                                ->orderBy('created_at', 'desc')
-                                ->get();
-        
-        // Para cada atividade, percorre os alunos e descodifica as suas respostas
+            ->with(['alunos' => function ($query) {
+                $query->withPivot('status', 'nota', 'answers');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // ✅ Decodifica as respostas (answers) de JSON → array PHP
         foreach ($atividades as $atividade) {
-            foreach($atividade->alunos as $aluno) {
-                $aluno->pivot->answers = json_decode($aluno->pivot->answers, true);
+            foreach ($atividade->alunos as $aluno) {
+                if (!empty($aluno->pivot->answers)) {
+                    $aluno->pivot->answers = json_decode($aluno->pivot->answers, true);
+                } else {
+                    $aluno->pivot->answers = [];
+                }
             }
         }
 
-        $alunos = Aluno::orderBy('nome')->get();
+        return view('professor.dashboard', ['atividades' => $atividades]);
+    }
 
-        return view('professor.dashboard', [
-            'atividades' => $atividades,
-            'alunos' => $alunos
-        ]);
+    /**
+     * Mostra o formulário para criar uma nova atividade.
+     */
+    public function create()
+    {
+        $alunos = Aluno::orderBy('nome')->get();
+        return view('professor.create', ['alunos' => $alunos]);
     }
 
     /**
@@ -50,30 +60,45 @@ class ProfessorController extends Controller
             'questions.*.options' => 'required|array|size:4',
             'questions.*.options.*' => 'required|string',
             'questions.*.correct' => 'required|string',
+            'questions.*.explanation' => 'nullable|string', // Explicação opcional
         ]);
 
         $professor = Auth::user();
 
-        $quizData = [
-            'questions' => array_values($request->questions)
-        ];
+        // ✅ Garante que todas as perguntas tenham campo de explicação
+        $questions = collect($request->questions)->map(function ($q) {
+            $q['explanation'] = $q['explanation'] ?? '';
+            return $q;
+        })->values()->toArray();
 
+        $quizData = ['questions' => $questions];
+
+        // ✅ Cria a atividade
         $atividade = Atividade::create([
             'titulo' => $request->titulo,
             'descricao' => json_encode($quizData),
             'id_professor' => $professor->id_professor,
         ]);
 
-        $alunosSelecionados = $request->alunos;
-
-        if (in_array('todos', $alunosSelecionados)) {
+        // ✅ Atribui aos alunos selecionados (ou a todos)
+        if (in_array('todos', $request->alunos)) {
             $alunoIds = Aluno::pluck('id_aluno')->toArray();
-            $atividade->alunos()->attach($alunoIds);
+            $atividade->alunos()->attach($alunoIds, [
+                'status' => 'Pendente', // Status inicial
+                'nota' => 0,
+                'answers' => json_encode([]),
+            ]);
         } else {
-            $atividade->alunos()->attach($alunosSelecionados);
+            $atividade->alunos()->attach($request->alunos, [
+                'status' => 'Pendente',
+                'nota' => 0,
+                'answers' => json_encode([]),
+            ]);
         }
 
-        return redirect()->route('professor.dashboard')->with('success', 'Quiz criado e atribuído com sucesso!');
+        return redirect()
+            ->route('professor.dashboard')
+            ->with('success', 'Quiz criado e atribuído com sucesso!');
     }
 
     /**
@@ -81,14 +106,17 @@ class ProfessorController extends Controller
      */
     public function destroyAtividade(Atividade $atividade)
     {
+        // ✅ Impede que um professor apague atividade de outro
         if ($atividade->id_professor !== Auth::id()) {
             abort(403, 'Acesso não autorizado.');
         }
 
+        // Remove relações e a própria atividade
         $atividade->alunos()->detach();
         $atividade->delete();
 
-        return redirect()->route('professor.dashboard')->with('success', 'Atividade apagada com sucesso!');
+        return redirect()
+            ->route('professor.dashboard')
+            ->with('success', 'Atividade apagada com sucesso!');
     }
 }
-

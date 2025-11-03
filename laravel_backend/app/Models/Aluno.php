@@ -33,10 +33,13 @@ class Aluno extends Authenticatable
         'password',
     ];
 
-    public function atividades()
-    {
-        return $this->belongsToMany(Atividade::class, 'atv_alunos', 'id_aluno', 'id_atividade')
-                    ->withPivot('status', 'nota');
+    public function atividades(){
+
+    
+        
+    return $this->belongsToMany(Atividade::class, 'atv_alunos', 'id_aluno', 'id_atividade')
+                ->withPivot('status', 'nota', 'answers') // ← adicionamos 'answers' aqui
+                ->withTimestamps(); // ← adiciona suporte aos timestamps criados na migration
     }
 }
 
