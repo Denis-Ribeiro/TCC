@@ -119,4 +119,33 @@ class ProfessorController extends Controller
             ->route('professor.dashboard')
             ->with('success', 'Atividade apagada com sucesso!');
     }
+
+    public function showAtividade($id)
+{
+    // Busca a atividade pelo ID ou lança erro 404
+    $atividade = \App\Models\Atividade::findOrFail($id);
+
+    // Carrega os alunos vinculados à atividade (tabela pivô: atv_alunos)
+    $atividade->load(['alunos' => function ($query) {
+        $query->withPivot('status', 'nota', 'answers');
+    }]);
+
+    // Decodifica o campo JSON 'answers' para array em cada aluno
+    foreach ($atividade->alunos as $aluno) {
+        if (!empty($aluno->pivot->answers)) {
+            $decoded = json_decode($aluno->pivot->answers, true);
+            $aluno->pivot->answers = is_array($decoded) ? $decoded : [];
+        } else {
+            $aluno->pivot->answers = [];
+        }
+    }
+
+    // Retorna a view independente (sem extends)
+    return view('professor.atividade_detalhes', compact('atividade'));
+}
+    public function show($id)
+{
+    $atividade = Atividade::with('alunos')->findOrFail($id);
+    return view('professor.atividade_detalhes', compact('atividade'));
+}
 }

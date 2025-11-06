@@ -24,6 +24,7 @@ Route::middleware(['auth:professor'])->prefix('professor')->name('professor.')->
     Route::get('/atividades/create', [ProfessorController::class, 'create'])->name('atividades.create');
     Route::post('/atividades', [ProfessorController::class, 'storeAtividade'])->name('atividades.store');
     Route::delete('/atividades/{atividade}', [ProfessorController::class, 'destroyAtividade'])->name('atividades.destroy');
+    Route::get('/atividades/{atividade}/detalhes', [ProfessorController::class, 'showAtividade'])->name('atividades.show');
 });
 
 // Grupo de rotas para ALUNOS

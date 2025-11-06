@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body class="bg-light text-dark">
 
 <div class="container py-4">
@@ -57,14 +58,14 @@
 
     {{-- TABELA RELATÓRIO --}}
     <div class="table-responsive">
-        <table class="table table-striped table-hover" id="tabelaRelatorio">
+        <table class="table table-striped table-hover align-middle" id="tabelaRelatorio">
             <thead class="table-dark">
                 <tr>
                     <th>Atividade</th>
                     <th>Criada em</th>
                     <th>Aluno</th>
                     <th>Status</th>
-                    <th>Respostas</th>
+                    <th>Respostas / Detalhes</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -82,22 +83,28 @@
                                     <span class="badge bg-secondary">Não Respondido</span>
                                 @endif
                             </td>
+
+                            {{-- Respostas + Ver Detalhes --}}
                             <td>
-                                @if(!empty($aluno->pivot->answers))
-                                    <details>
-                                        <summary>Ver</summary>
-                                        <ul class="mb-0">
-                                            @foreach($aluno->pivot->answers as $qIndex => $resposta)
-                                                <li>Q{{ $qIndex + 1 }}: {{ $resposta }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </details>
-                                @else
-                                    <em>—</em>
-                                @endif
+                                <div class="d-flex flex-column gap-2">
+                                    {{-- Exibe se o aluno respondeu --}}
+                                    @if(!empty($aluno->pivot->answers))
+                                        <span class="text-success fw-bold">Respostas enviadas</span>
+                                    @else
+                                        <span class="text-muted fst-italic">Sem respostas</span>
+                                    @endif
+
+                                    {{-- Botão "Ver Detalhes" abaixo das respostas --}}
+                                    <a href="{{ route('professor.atividades.show', $atividade->id_atividade) }}"
+                                       class="btn btn-info btn-sm mt-1"
+                                       target="_blank">
+                                       Ver Detalhes
+                                    </a>
+                                </div>
                             </td>
+
+                            {{-- Ações (Excluir) --}}
                             <td>
-                                {{-- Excluir atividade (só aparece na primeira linha de cada atividade) --}}
                                 @if ($loop->first)
                                     <form action="{{ route('professor.atividades.destroy', $atividade->id_atividade) }}" 
                                           method="POST" 
